@@ -111,14 +111,13 @@ let NERDTreeShowHidden=0
 
 " CtrlP
 let g:ctrlp_working_path_mode = 0
-nmap <silent> <leader>a :CtrlP<CR>
+nmap <silent> <leader>j :CtrlP<CR>
 let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee'
-
-" lightline
 
 " Vim-go
 let g:go_fmt_command = "goimports"
 
+" lightline
 set laststatus=2
 let g:lightline = {
       \ 'colorscheme': 'wombat',
@@ -154,3 +153,25 @@ try
 	set undofile
 catch
 endtry
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" The Silver Searcher
+" Needs Silver Searcher on the host -> brew install ag
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if executable('ag')
+	" Use ag over grep
+	set grepprg=ag\ --nogroup\ --nocolor
+
+	" Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+	let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+
+	" ag is fast enough that CtrlP doesn't need to cache
+	let g:ctrlp_use_caching = 0
+endif
+
+" bind K to grep word under cursor
+nnoremap <silent> <leader>a :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+
+" bind \ (backward slash) to grep shortcut
+command! -nargs=+ -complete=file -bar Ag silent! grep! <args>|cwindow|redraw!
+nnoremap \ :Ag<SPACE>
