@@ -50,6 +50,12 @@ Plugin 'tpope/vim-surround'
 " Gitgutter.vim
 Plugin 'airblade/vim-gitgutter'
 
+" vim-unimpaired
+Plugin 'tpope/vim-unimpaired'
+
+" vim-expand-region
+Plugin 'terryma/vim-expand-region'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -67,8 +73,11 @@ filetype plugin indent on    " required
 "
 let mapleader=","
 
+" always show the status bar
 set noshowmode
+
 set hidden
+
 let g:solarized_termcolors=16
 "let g:rehash256 = 1
 syntax enable
@@ -101,8 +110,23 @@ set title                " change the terminal's title
 set visualbell           " don't beep
 set noerrorbells         " don't beep
 
-set nobackup
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Files, backups and undo
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Turn backup off, since most stuff is in SVN, git et.c anyway...
 set noswapfile
+set nobackup
+set nowritebackup
+
+" short ttimeoutlen to lower latency to show current mode
+:set ttimeoutlen=50
+
+" Start scrolling before my cursor reaches the bottom of the screen
+set scrolloff=4
+
+" Toggle cursor highlighting
+:nmap <leader>h :set cursorline! cursorcolumn!<CR>
 
 " Save
 nmap <leader>w :w<CR>
@@ -133,6 +157,10 @@ nnoremap vaa ggvGg_
 
 " Close preview window
 nmap <leader>pc :pc<CR>
+
+" :W sudo saves the file 
+" (useful for handling the permission-denied error)
+command! W w !sudo tee % > /dev/null
 
 """"""""""""""""""""""""""""""
 " => Visual mode related
@@ -167,10 +195,29 @@ map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
 
+" <Tab> to cycle through splits
+:noremap <Tab> <C-w>w
+
+" Close the current split
+:nmap <leader>x <C-w>c
+
 " Copy to clipboard
 vnoremap <leader>y "*y
+
+" Bash like keys for the command line
+cnoremap <C-A> <Home>
+cnoremap <C-E> <End>
+cnoremap <C-K> <C-U>
+
+cnoremap <C-P> <Up>
+cnoremap <C-N> <Down>
+
 " Pretty print JSON
 nmap <leader>,, :%!python -m json.tool<CR>
+
+" Vim expand region
+vmap v <Plug>(expand_region_expand)
+vmap <C-v> <Plug>(expand_region_shrink)
 
 " NERDTree Customizations
 let g:NERDTreeWinPos = "right"
@@ -313,6 +360,12 @@ au FileType javascript setl sw=4 sts=4 et
 " Golang
 au FileType go setl noexpandtab
 
+" Use github-flavored markdown
+:aug markdown
+  :au!
+  :au BufNewFile,BufRead *.md,*.markdown setlocal filetype=ghmarkdown
+:aug END
+
 """""""""""""""""""""""""""""
 " Functions
 """""""""""""""""""""""""""""
@@ -375,8 +428,3 @@ let g:tmuxline_separators = {
     \ 'right_alt' : '<',
     \ 'space' : ' '}
 
-" Use github-flavored markdown
-:aug markdown
-  :au!
-  :au BufNewFile,BufRead *.md,*.markdown setlocal filetype=ghmarkdown
-:aug END
