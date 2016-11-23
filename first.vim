@@ -22,7 +22,8 @@ Plugin 'Xuyuanp/nerdtree-git-plugin'
 
 " For go env, additional plugins
 Plugin 'fatih/vim-go'
-" Plugin 'majutsushi/tagbar'
+Plugin 'majutsushi/tagbar'
+Plugin 'ternjs/tern_for_vim'
 
 " For Neocomplete
 Plugin 'Shougo/neocomplete.vim'
@@ -55,6 +56,9 @@ Plugin 'tpope/vim-unimpaired'
 
 " vim-expand-region
 Plugin 'terryma/vim-expand-region'
+
+" Additional Syntax
+Plugin 'motus/pig.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -321,6 +325,9 @@ let g:acp_enableAtStartup = 0
 let g:neocomplete#enable_at_startup = 1
 " Use smartcase.
 let g:neocomplete#enable_smart_case = 1
+" Set minimum syntax keyword length.
+let g:neocomplete#sources#syntax#min_keyword_length = 3
+let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
 " Plugin key-mappings.
 inoremap <expr><C-g>     neocomplete#undo_completion()
 inoremap <expr><C-l>     neocomplete#complete_common_string()
@@ -334,6 +341,8 @@ function! s:my_cr_function()
 endfunction
 " <TAB>: completion.
 inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
 inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
 
 " Refresh all buffers
@@ -348,8 +357,40 @@ let g:go_highlight_fields = 1
 let g:go_highlight_types = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
+let g:go_get_update = 0
 au FileType go nmap <leader>r <Plug>(go-run)
 au FileType go nmap <leader>b <Plug>(go-build)
+
+" gotagbar config
+nmap <leader>gt :TagbarToggle<CR>
+let g:tagbar_autoclose = 1
+let g:tagbar_type_go = {
+    \ 'ctagstype' : 'go',
+    \ 'kinds'     : [
+        \ 'p:package',
+        \ 'i:imports:1',
+        \ 'c:constants',
+        \ 'v:variables',
+        \ 't:types',
+        \ 'n:interfaces',
+        \ 'w:fields',
+        \ 'e:embedded',
+        \ 'm:methods',
+        \ 'r:constructor',
+        \ 'f:functions'
+    \ ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : {
+        \ 't' : 'ctype',
+        \ 'n' : 'ntype'
+    \ },
+    \ 'scope2kind' : {
+        \ 'ctype' : 't',
+        \ 'ntype' : 'n'
+    \ },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
+\ }
 
 """""""""""""""""""""""""""""
 " File specific properties
