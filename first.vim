@@ -27,8 +27,8 @@ Plugin 'ternjs/tern_for_vim'
 
 " For Neocomplete
 Plugin 'Shougo/neocomplete.vim'
-Plugin 'Shougo/neosnippet'
-Plugin 'Shougo/neosnippet-snippets'
+Plugin 'SirVer/ultisnips'
+Plugin 'honza/vim-snippets'
 
 Plugin 'sjl/gundo.vim'
 
@@ -59,6 +59,18 @@ Plugin 'terryma/vim-expand-region'
 
 " Additional Syntax
 Plugin 'motus/pig.vim'
+
+" jshint/lint
+" Plugin 'wookiehangover/jshint.vim'
+
+" markdown preview
+Plugin 'suan/vim-instant-markdown'
+
+" Better substitutions
+Plugin 'tpope/vim-abolish'
+
+" Yankstack
+Plugin 'maxbrunsfeld/vim-yankstack'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -223,18 +235,56 @@ nmap <leader>,, :%!python -m json.tool<CR>
 vmap v <Plug>(expand_region_expand)
 vmap <C-v> <Plug>(expand_region_shrink)
 
+" Turn on the WiLd menu
+set wildmenu
+
+" Ignore compiled files
+set wildignore=*.o,*~,*.pyc
+if has("win16") || has("win32")
+  set wildignore+=.git\*,.hg\*,.svn\*
+else
+  set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
+endif
+
+""""""""""""""""""""""""""""""""""""""""
 " NERDTree Customizations
+""""""""""""""""""""""""""""""""""""""""
 let g:NERDTreeWinPos = "right"
 nmap <silent> <leader>nn :NERDTreeToggle<CR>
 nmap <silent> <leader>nf :NERDTreeFind<CR>
 let NERDTreeShowHidden=0
+let g:NERDTreeWinSize=35
 
+""""""""""""""""""""""""""""""""""""""""
 " CtrlP
-let g:ctrlp_working_path_mode = 0
-nmap <silent> <leader>j :CtrlP<CR>
-let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee'
+""""""""""""""""""""""""""""""""""""""""
+" Use the nearest .git directory as the cwd
+" This makes a lot of sense if you are working on a project that is in version
+" control. It also supports works with .svn, .hg, .bzr.
+let g:ctrlp_working_path_mode = 'r'
 
+nmap <silent> <leader>j :CtrlP<CR>
+map <c-b> :CtrlPBuffer<cr>
+
+let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee'
+let g:ctrlp_max_height = 15
+
+" Use ag in CtrlP for listing files. Lightning fast and respects
+" .gitignore
+let g:ctrlp_user_command = 'ag -Q -l --nocolor -g "" %s'
+
+" ag is fast enough that CtrlP doesn't need to cache
+let g:ctrlp_use_caching = 0
+
+""""""""""""""""""""""""""""""
+" YankStack
+""""""""""""""""""""""""""""""
+nmap <c-p> <Plug>yankstack_substitute_older_paste
+nmap <c-P> <Plug>yankstack_substitute_newer_paste
+
+""""""""""""""""""""""""""""""""""""""""
 " lightline
+""""""""""""""""""""""""""""""""""""""""
 set laststatus=2
 let g:lightline = {
       \ 'colorscheme': 'wombat',
@@ -274,48 +324,20 @@ catch
 endtry
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" The Silver Searcher
-" Needs Silver Searcher on the host -> brew install ag
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
-" if executable('ag')
-"   " Use Ag over Grep
-"   set grepprg=ag\ --nogroup\ --nocolor
-" 
-"   " Use ag in CtrlP for listing files. Lightning fast and respects
-"   " .gitignore
-"   let g:ctrlp_user_command = 'ag -Q -l --nocolor --hidden -g "" %s'
-" 
-"   " ag is fast enough that CtrlP doesn't need to cache
-"   let g:ctrlp_use_caching = 0
-" 
-"   if !exists(":Ag")
-"     command -nargs=+ -complete=file -bar Ag silent! grep! <args>|cwindow|redraw!
-"     nnoremap \ :Ag<SPACE>
-"   endif
-" endif
-" 
-" " bind K to grep word under cursor
-" nnoremap <silent> <leader>a :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
-" 
-" " bind \ (backward slash) to grep shortcut
-" command! -nargs=+ -complete=file -bar Ag silent! grep! <args>|cwindow|redraw!
-" nnoremap \ :Ag<SPACE>
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Vim-grepper
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+runtime autoload/grepper.vim
 nnoremap \ :Grepper<cr>
+let g:grepper.tools = 
+      \ ['rg', 'ag', 'ack', 'grep', 'git']
+let g:grepper.side = 1
+autocmd FileType GrepperSide
+      \  silent execute 'keeppatterns v#'.b:grepper_side.'#>'
+      \| silent normal! ggn
+let g:grepper.next_tool = '<leader>g'
 
 " Tagbar
 " nmap <silent> <leader>z :TagbarToggle<CR>
-
-" Use ag in CtrlP for listing files. Lightning fast and respects
-" .gitignore
-let g:ctrlp_user_command = 'ag -Q -l --nocolor -g "" %s'
-
-" ag is fast enough that CtrlP doesn't need to cache
-let g:ctrlp_use_caching = 0
 
 """""""""""""""""""""""""""""
 " Neocomplete
@@ -361,7 +383,9 @@ let g:go_get_update = 0
 au FileType go nmap <leader>r <Plug>(go-run)
 au FileType go nmap <leader>b <Plug>(go-build)
 
+""""""""""""""""""""""""""""""""""""""""
 " gotagbar config
+""""""""""""""""""""""""""""""""""""""""
 nmap <leader>gt :TagbarToggle<CR>
 let g:tagbar_autoclose = 1
 let g:tagbar_type_go = {
