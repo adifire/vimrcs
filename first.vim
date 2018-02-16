@@ -72,6 +72,9 @@ Plugin 'tpope/vim-abolish'
 " Yankstack
 Plugin 'maxbrunsfeld/vim-yankstack'
 
+" Dash plugin
+Plugin 'rizzatti/dash.vim'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -266,7 +269,7 @@ let g:ctrlp_working_path_mode = 'r'
 nmap <silent> <leader>j :CtrlP<CR>
 map <c-b> :CtrlPBuffer<cr>
 
-let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee'
+let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee\|^vendor'
 let g:ctrlp_max_height = 15
 
 " Use ag in CtrlP for listing files. Lightning fast and respects
@@ -302,7 +305,8 @@ let g:lightline = {
       \   'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}'
       \ },
       \ 'component_function': {
-      \   'fugitive': 'LightLineFugitive'
+      \   'fugitive': 'LightLineFugitive',
+      \   'filename': 'LightLineFilename'
       \ },
       \ 'component_visible_condition': {
       \   'readonly': '(&filetype!="help"&& &readonly)',
@@ -316,7 +320,7 @@ let g:lightline = {
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Turn persistent undo on 
 " "  means that you can undo even when you close a buffer/VIM
-" """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 try
   set undodir=~/.vim_runtime/temp_dirs/undodir
   set undofile
@@ -326,7 +330,7 @@ endtry
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Vim-grepper
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-runtime autoload/grepper.vim
+runtime plugin/grepper.vim
 nnoremap \ :Grepper<cr>
 let g:grepper.tools = 
       \ ['rg', 'ag', 'ack', 'grep', 'git']
@@ -337,7 +341,7 @@ autocmd FileType GrepperSide
 let g:grepper.next_tool = '<leader>g'
 
 " Tagbar
-" nmap <silent> <leader>z :TagbarToggle<CR>
+nmap <F8> :TagbarToggle<CR>
 
 """""""""""""""""""""""""""""
 " Neocomplete
@@ -380,6 +384,7 @@ let g:go_highlight_types = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 let g:go_get_update = 0
+let g:go_gocode_autobuild = 0
 au FileType go nmap <leader>r <Plug>(go-run)
 au FileType go nmap <leader>b <Plug>(go-build)
 
@@ -389,32 +394,32 @@ au FileType go nmap <leader>b <Plug>(go-build)
 nmap <leader>gt :TagbarToggle<CR>
 let g:tagbar_autoclose = 1
 let g:tagbar_type_go = {
-    \ 'ctagstype' : 'go',
-    \ 'kinds'     : [
-        \ 'p:package',
-        \ 'i:imports:1',
-        \ 'c:constants',
-        \ 'v:variables',
-        \ 't:types',
-        \ 'n:interfaces',
-        \ 'w:fields',
-        \ 'e:embedded',
-        \ 'm:methods',
-        \ 'r:constructor',
-        \ 'f:functions'
-    \ ],
-    \ 'sro' : '.',
-    \ 'kind2scope' : {
-        \ 't' : 'ctype',
-        \ 'n' : 'ntype'
-    \ },
-    \ 'scope2kind' : {
-        \ 'ctype' : 't',
-        \ 'ntype' : 'n'
-    \ },
-    \ 'ctagsbin'  : 'gotags',
-    \ 'ctagsargs' : '-sort -silent'
-\ }
+      \ 'ctagstype' : 'go',
+      \ 'kinds'     : [
+      \ 'p:package',
+      \ 'i:imports:1',
+      \ 'c:constants',
+      \ 'v:variables',
+      \ 't:types',
+      \ 'n:interfaces',
+      \ 'w:fields',
+      \ 'e:embedded',
+      \ 'm:methods',
+      \ 'r:constructor',
+      \ 'f:functions'
+      \ ],
+      \ 'sro' : '.',
+      \ 'kind2scope' : {
+      \ 't' : 'ctype',
+      \ 'n' : 'ntype'
+      \ },
+      \ 'scope2kind' : {
+      \ 'ctype' : 't',
+      \ 'ntype' : 'n'
+      \ },
+      \ 'ctagsbin'  : 'gotags',
+      \ 'ctagsargs' : '-sort -silent'
+      \ }
 
 """""""""""""""""""""""""""""
 " File specific properties
@@ -427,8 +432,8 @@ au FileType go setl noexpandtab
 
 " Use github-flavored markdown
 :aug markdown
-  :au!
-  :au BufNewFile,BufRead *.md,*.markdown setlocal filetype=ghmarkdown
+:au!
+:au BufNewFile,BufRead *.md,*.markdown setlocal filetype=ghmarkdown
 :aug END
 
 """""""""""""""""""""""""""""
@@ -443,6 +448,11 @@ function! LightLineFugitive()
 endfunction
 
 function! LightLineFilename()
+  return expand('%')
+endfunction
+
+" Doesn't work! Use above
+function! LightLineFilename2()
   let fname = expand('%:t')
   return fname == 'ControlP' && has_key(g:lightline, 'ctrlp_item') ? g:lightline.ctrlp_item :
         \ fname == '__Tagbar__' ? g:lightline.fname :
@@ -487,9 +497,22 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:tmuxline_powerline_separators = 0
 let g:tmuxline_separators = {
-    \ 'left' : '',
-    \ 'left_alt': '>',
-    \ 'right' : '',
-    \ 'right_alt' : '<',
-    \ 'space' : ' '}
+      \ 'left' : '',
+      \ 'left_alt': '>',
+      \ 'right' : '',
+      \ 'right_alt' : '<',
+      \ 'space' : ' '}
 
+" Go crazy!
+if filereadable(expand("~/.vimrc.local"))
+  " In your .vimrc.local, you might like:
+  "
+  " set autowrite
+  " set nocursorline
+  " set nowritebackup
+  " set whichwrap+=<,>,h,l,[,] " Wrap arrow keys between lines
+  "
+  " autocmd! bufwritepost .vimrc source ~/.vimrc
+  " noremap! jj <ESC>
+  source ~/.vimrc.local
+endif
