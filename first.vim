@@ -1,94 +1,92 @@
 set nocompatible              " be iMproved, required
-filetype off                  " required
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
+" set the runtime path to include vim-plug and initialize
+call plug#begin('~/.vim/bundle')
 
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
+Plug 'tpope/vim-fugitive'
 
-" Keep Plugin commands between vundle#begin/end.
-Plugin 'tpope/vim-fugitive'
+Plug 'altercation/vim-colors-solarized'
 
-Plugin 'altercation/vim-colors-solarized'
+Plug 'ctrlpvim/ctrlp.vim'
 
-Plugin 'ctrlpvim/ctrlp.vim'
-
-Plugin 'scrooloose/nerdtree'
-Plugin 'Xuyuanp/nerdtree-git-plugin'
-
-" For go env, additional plugins
-Plugin 'fatih/vim-go'
-Plugin 'majutsushi/tagbar'
-Plugin 'ternjs/tern_for_vim'
+Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
 
 " For Neocomplete
-Plugin 'Shougo/neocomplete.vim'
-Plugin 'SirVer/ultisnips'
-Plugin 'honza/vim-snippets'
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
 
-Plugin 'sjl/gundo.vim'
+"Plug 'sjl/gundo.vim'
+Plug 'mbbill/undotree'
 
-Plugin 'itchyny/lightline.vim'
+Plug 'itchyny/lightline.vim'
 
-Bundle 'edkolev/tmuxline.vim'
+Plug 'edkolev/tmuxline.vim'
 
 " used for repeating operator actions via "."
-Plugin 'tpope/vim-repeat'
+Plug 'tpope/vim-repeat'
 
 " Interactive scratchpad for hackers.. ;) https://github.com/metakirby5/codi.vim
-Plugin 'metakirby5/codi.vim'
+Plug 'metakirby5/codi.vim'
 
 " Vim grep. https://github.com/mhinz/vim-grepper
-Plugin 'mhinz/vim-grepper'
+Plug 'mhinz/vim-grepper'
 
 " Surround.vim
-Plugin 'tpope/vim-surround'
+Plug 'tpope/vim-surround'
 
 " Gitgutter.vim
-Plugin 'airblade/vim-gitgutter'
+Plug 'airblade/vim-gitgutter'
 
 " vim-unimpaired
-Plugin 'tpope/vim-unimpaired'
+Plug 'tpope/vim-unimpaired'
 
 " vim-expand-region
-Plugin 'terryma/vim-expand-region'
+Plug 'terryma/vim-expand-region'
 
 " Additional Syntax
-Plugin 'motus/pig.vim'
+Plug 'motus/pig.vim'
 
 " jshint/lint
-" Plugin 'wookiehangover/jshint.vim'
+" Plug 'wookiehangover/jshint.vim'
 
 " markdown preview
-Plugin 'suan/vim-instant-markdown'
+Plug 'suan/vim-instant-markdown'
 
 " Better substitutions
-Plugin 'tpope/vim-abolish'
+Plug 'tpope/vim-abolish'
 
 " Yankstack
-Plugin 'maxbrunsfeld/vim-yankstack'
+Plug 'maxbrunsfeld/vim-yankstack'
 
 " Dash plugin
-Plugin 'rizzatti/dash.vim'
+Plug 'rizzatti/dash.vim'
 
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
+" go related
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+" python related
+Plug 'zchee/deoplete-jedi'
+
+" All of your Plugs must be added before the following line
+call plug#end()
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
 "
 " Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
+" PlugInstall [name ...] [#threads] Install plugins
+" PlugUpdate [name ...] [#threads]  Install or update plugins
+" PlugClean[!]  Remove unused directories (bang version will clean without prompt)
+" PlugUpgrade Upgrade vim-plug itself
+" PlugStatus  Check the status of plugins
+" PlugDiff  Examine changes from the previous update and the pending changes
+" PlugSnapshot[!] [output path] Generate script for restoring the current
+" snapshot of the plugins
 "
 let mapleader=","
 
@@ -97,10 +95,12 @@ set noshowmode
 
 set hidden
 
-let g:solarized_termcolors=16
+let g:solarized_termcolors=256
 "let g:rehash256 = 1
 syntax enable
 set background=dark
+"let g:solarized_visibility = "high"
+let g:solarized_contrast = "high"
 colorscheme solarized
 
 set nowrap        " don't wrap lines
@@ -206,7 +206,26 @@ nmap <silent> <leader>tn :tabnew<CR>
 nmap <silent> <leader>tc :tabclose<CR>
 
 " Gundo
-map <silent> <leader>u :GundoToggle<CR>
+"if has("python3")
+"  let g:gundo_prefer_python3 = 1
+"endif
+"map <silent> <leader>u :GundoToggle<CR>
+
+" Undotree
+" e.g. using 'd' instead of 'days' to save some space.
+if !exists('g:undotree_ShortIndicators')
+  let g:undotree_ShortIndicators = 1
+endif
+" if set, let undotree window get focus after being opened, otherwise
+" focus will stay in current window.
+if !exists('g:undotree_SetFocusWhenToggle')
+  let g:undotree_SetFocusWhenToggle = 1
+endif
+" tree node shape.
+if !exists('g:undotree_TreeNodeShape')
+  let g:undotree_TreeNodeShape = '*'
+endif
+map <silent> <leader>u :UndotreeToggle<cr>
 
 " Easy window navigation
 map <C-h> <C-w>h
@@ -222,6 +241,8 @@ map <C-l> <C-w>l
 
 " Copy to clipboard
 vnoremap <leader>y "*y
+" vnoremap <C-c> :w !pbcopy<CR><CR> 
+" noremap <C-v> :r !pbpaste<CR><CR>
 
 " Bash like keys for the command line
 cnoremap <C-A> <Home>
@@ -248,6 +269,9 @@ if has("win16") || has("win32")
 else
   set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 endif
+
+" Enable deoplete
+let g:deoplete#enable_at_startup = 1
 
 """"""""""""""""""""""""""""""""""""""""
 " NERDTree Customizations
@@ -285,6 +309,20 @@ let g:ctrlp_use_caching = 0
 nmap <c-p> <Plug>yankstack_substitute_older_paste
 nmap <c-P> <Plug>yankstack_substitute_newer_paste
 
+"""""""""""""""""""""""""""""
+" Vim go
+"""""""""""""""""""""""""""""
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_types = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
+let g:go_get_update = 0
+let g:go_gocode_autobuild = 0
+au FileType go nmap <leader>r <Plug>(go-run)
+au FileType go nmap <leader>b <Plug>(go-build)
+
 """"""""""""""""""""""""""""""""""""""""
 " lightline
 """"""""""""""""""""""""""""""""""""""""
@@ -321,11 +359,10 @@ let g:lightline = {
 " => Turn persistent undo on 
 " "  means that you can undo even when you close a buffer/VIM
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-try
+if has("persistent_undo")
   set undodir=~/.vim_runtime/temp_dirs/undodir
   set undofile
-catch
-endtry
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Vim-grepper
@@ -343,50 +380,8 @@ let g:grepper.next_tool = '<leader>g'
 " Tagbar
 nmap <F8> :TagbarToggle<CR>
 
-"""""""""""""""""""""""""""""
-" Neocomplete
-"""""""""""""""""""""""""""""
-let g:acp_enableAtStartup = 0
-" Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
-" Use smartcase.
-let g:neocomplete#enable_smart_case = 1
-" Set minimum syntax keyword length.
-let g:neocomplete#sources#syntax#min_keyword_length = 3
-let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
-" Plugin key-mappings.
-inoremap <expr><C-g>     neocomplete#undo_completion()
-inoremap <expr><C-l>     neocomplete#complete_common_string()
-" Recommended key-mappings.
-" <CR>: close popup and save indent.
-inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-function! s:my_cr_function()
-  return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
-  " For no inserting <CR> key.
-  "return pumvisible() ? "\<C-y>" : "\<CR>"
-endfunction
-" <TAB>: completion.
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" <C-h>, <BS>: close popup and delete backword char.
-inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-
 " Refresh all buffers
 nmap <leader>la :bufdo e!<CR>
-
-"""""""""""""""""""""""""""""
-" Vim go
-"""""""""""""""""""""""""""""
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_types = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_build_constraints = 1
-let g:go_get_update = 0
-let g:go_gocode_autobuild = 0
-au FileType go nmap <leader>r <Plug>(go-run)
-au FileType go nmap <leader>b <Plug>(go-build)
 
 """"""""""""""""""""""""""""""""""""""""
 " gotagbar config
@@ -442,7 +437,7 @@ au FileType go setl noexpandtab
 function! LightLineFugitive()
   if &ft !~? 'vimfiler\|gundo' && exists("*fugitive#head")
     let branch = fugitive#head()
-    return branch !=# '' ? '⭠ '.branch : ''
+    return branch !=# '' ? branch : ''
   endif
   return ''
 endfunction
